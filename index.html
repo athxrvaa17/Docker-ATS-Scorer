@@ -4,179 +4,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI ATS & Career Strategist</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Modern Dark Theme & Typography */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Orbitron:wght@500;700&display=swap');
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 
         body {
-            background-color: #0d0d0f;
-            color: #ffffff;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            position: relative;
+            background-color: #050505; color: #ffffff; min-height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            overflow-x: hidden; position: relative; padding: 20px; flex-direction: column;
         }
 
-        /* Background Animated Blobs to make Glassmorphism pop */
-        .blob {
-            position: absolute;
-            filter: blur(80px);
-            z-index: -1;
-            opacity: 0.6;
-            animation: float 10s infinite alternate ease-in-out;
-        }
-        .blob-1 { top: 10%; left: 20%; width: 300px; height: 300px; background: #32D74B; }
-        .blob-2 { bottom: 10%; right: 20%; width: 400px; height: 400px; background: #0A84FF; }
+        .blob { position: fixed; filter: blur(90px); z-index: -1; opacity: 0.5; animation: float 12s infinite alternate ease-in-out; border-radius: 50%; }
+        .blob-1 { top: -10%; left: 10%; width: 400px; height: 400px; background: #32D74B; }
+        .blob-2 { bottom: -10%; right: 10%; width: 500px; height: 500px; background: #0A84FF; }
 
-        @keyframes float {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(50px, 50px); }
-        }
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(60px, 60px) scale(1.1); } }
 
-        /* --- LIQUIDGLASS CORE STYLES --- */
         .glass-panel {
-            background: rgba(30, 30, 30, 0.4);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            border-radius: 24px;
-            padding: 40px;
-            z-index: 10;
-            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            background: rgba(20, 20, 22, 0.55); backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            border-radius: 24px; padding: 35px; z-index: 10; width: 100%; max-width: 800px; transition: all 0.5s ease;
         }
 
-        /* --- VIEW 1: INPUT FORM --- */
-        #input-view {
-            width: 500px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        h2 { font-weight: 600; letter-spacing: 1px; margin-bottom: 10px; }
+        /* --- TABS SYSTEM --- */
+        .tabs { display: flex; background: rgba(0,0,0,0.4); border-radius: 12px; margin-bottom: 25px; padding: 5px; }
+        .tab-btn { flex: 1; padding: 12px; text-align: center; color: #aaa; cursor: pointer; border-radius: 8px; transition: 0.3s; font-weight: 600; font-size: 14px;}
+        .tab-btn.active { background: rgba(10, 132, 255, 0.2); color: #0A84FF; box-shadow: inset 0 0 10px rgba(10, 132, 255, 0.2); }
 
         textarea {
-            width: 100%;
-            height: 120px;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            color: white;
-            padding: 15px;
-            font-size: 14px;
-            resize: none;
-            outline: none;
-            transition: border 0.3s ease;
+            width: 100%; height: 100px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px; color: white; padding: 15px; font-size: 14px; resize: none; outline: none; margin-bottom: 15px;
         }
-
         textarea:focus { border: 1px solid #0A84FF; }
 
+        .flex-row { display: flex; gap: 15px; }
+        .flex-row textarea { flex: 1; }
+
         button.action-btn {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
+            background: linear-gradient(135deg, rgba(10, 132, 255, 0.8), rgba(50, 215, 75, 0.8));
+            color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-size: 16px; font-weight: 600; cursor: pointer;
         }
 
-        button.action-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-        }
+        .loader { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid #32D74B; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 15px auto; display: none;}
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* --- VIEW 2: THE GIANT BUBBLE --- */
-        #bubble-view {
-            display: none;
-            width: 250px;
-            height: 250px;
-            border-radius: 50%;
-            display: none; /* Changed via JS */
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            text-align: center;
-        }
-
-        #bubble-view:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 40px rgba(10, 132, 255, 0.4);
-        }
-
-        .score-text {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 64px;
-            font-weight: 700;
-            background: -webkit-linear-gradient(#fff, #aaa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .click-hint {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.5);
-            margin-top: 10px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        /* --- VIEW 3: EXPANDED DETAILS --- */
-        #details-view {
-            display: none;
-            width: 800px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        /* Custom Scrollbar for Glass UI */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-
-        .info-group { margin-bottom: 25px; }
-        .info-group h3 { color: #0A84FF; font-size: 16px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;}
-        .info-group p { color: #d1d1d6; line-height: 1.6; font-size: 15px;}
+        /* General Output Styles */
+        .info-group { margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; }
+        .info-group h3 { color: #0A84FF; font-size: 14px; margin-bottom: 10px; text-transform: uppercase; }
+        .tag { background: rgba(255, 59, 48, 0.15); color: #ff453a; padding: 5px 10px; border-radius: 20px; font-size: 12px; display: inline-block; margin: 3px; }
         
-        .tag-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px;}
-        .tag {
-            background: rgba(255, 59, 48, 0.2);
-            border: 1px solid rgba(255, 59, 48, 0.3);
-            color: #ff453a;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-        }
-
-        .tech-card {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 15px;
-            border-radius: 12px;
-            margin-top: 10px;
-        }
-        .tech-card h4 { color: #32D74B; margin-bottom: 5px;}
-        .tech-card a { color: #0A84FF; text-decoration: none; font-size: 13px; display: inline-block; margin-top: 8px;}
-        .tech-card a:hover { text-decoration: underline; }
-
-        /* Utility */
+        #single-result, #compare-result { display: none; }
         .hidden { display: none !important; }
-        .loader { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid #0A84FF; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto; display: none;}
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Single Result Specifics */
+        .big-score { font-family: 'Orbitron'; font-size: 48px; color: #32D74B; text-align: center; margin-bottom: 10px; }
+        
+        /* Compare Result Specifics */
+        .score-board { display: flex; justify-content: space-around; text-align: center; margin-bottom: 20px; }
+        .score-board .score { font-family: 'Orbitron'; font-size: 36px; }
+        .c1 { color: #0A84FF; } .c2 { color: #FF0A84; }
+        .graph-container { width: 100%; max-width: 450px; margin: 0 auto; }
     </style>
 </head>
 <body>
@@ -184,153 +73,179 @@
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
 
-    <div id="input-view" class="glass-panel">
-        <h2>AI Resume Analyzer</h2>
-        <textarea id="jd" placeholder="Paste Job Description here..."></textarea>
-        <textarea id="resume" placeholder="Paste your Resume text here..."></textarea>
-        <button class="action-btn" onclick="analyzeResume()">Analyze Match</button>
-        <div id="loading" class="loader" style="margin-top: 15px;"></div>
-    </div>
-
-    <div id="bubble-view" class="glass-panel" onclick="expandDetails()">
-        <div class="score-text" id="display-score">0%</div>
-        <div class="click-hint">Click to Expand</div>
-    </div>
-
-    <div id="details-view" class="glass-panel">
-        <h2 style="font-family: 'Orbitron', sans-serif; font-size: 32px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;">
-            ATS Score: <span id="detail-score" style="color: #32D74B;">0%</span>
-        </h2>
+    <div class="glass-panel" id="main-panel">
         
-        <div class="info-group">
-            <h3>Hiring Probability</h3>
-            <p><span id="hiring-prob" style="font-weight: bold; color: white;"></span> - <span id="hiring-reason"></span></p>
+        <div class="tabs" id="tab-container">
+            <div class="tab-btn active" onclick="switchTab('single')" id="tab-single">Analyze Single Resume</div>
+            <div class="tab-btn" onclick="switchTab('compare')" id="tab-compare">Compare 2 Resumes</div>
         </div>
 
-        <div class="info-group">
-            <h3>Missing Keywords</h3>
-            <div class="tag-container" id="missing-tags"></div>
+        <div id="input-section">
+            <textarea id="jd" placeholder="Paste the Job Description here..."></textarea>
+            
+            <div id="single-input">
+                <textarea id="resume-single" placeholder="Paste Candidate Resume here..."></textarea>
+            </div>
+
+            <div id="compare-input" class="flex-row hidden">
+                <textarea id="resume-1" placeholder="Candidate 1 Resume..."></textarea>
+                <textarea id="resume-2" placeholder="Candidate 2 Resume..."></textarea>
+            </div>
+
+            <button class="action-btn" id="run-btn" onclick="runAnalysis()">Analyze Resume</button>
+            <div id="loading" class="loader"></div>
         </div>
 
-        <div class="info-group">
-            <h3>Trending Tech You Must Learn</h3>
-            <div id="trending-tech-container"></div>
+        <div id="single-result">
+            <div class="big-score">ATS: <span id="s-score">0</span>%</div>
+            <div class="info-group">
+                <h3>Hiring Probability</h3>
+                <p id="s-prob" style="font-weight: bold;"></p>
+                <p id="s-reason" style="font-size: 13px; color: #aaa; margin-top: 5px;"></p>
+            </div>
+            <div class="info-group">
+                <h3>Missing Keywords</h3>
+                <div id="s-missing"></div>
+            </div>
+            <div class="info-group">
+                <h3>Future Scope</h3>
+                <p id="s-scope" style="font-size: 14px; color: #ddd;"></p>
+            </div>
+            <button class="action-btn" style="background: transparent; border: 1px solid #0A84FF;" onclick="resetUI()">Back to Inputs</button>
         </div>
 
-        <div class="info-group">
-            <h3>Future Scope of this Role</h3>
-            <p id="future-scope-text"></p>
+        <div id="compare-result">
+            <div class="score-board">
+                <div><h3>Candidate 1</h3><div class="score c1" id="c-score1">0%</div></div>
+                <div style="font-family: 'Orbitron'; padding-top: 15px; color: #555;">VS</div>
+                <div><h3>Candidate 2</h3><div class="score c2" id="c-score2">0%</div></div>
+            </div>
+            <p id="c-summary" style="text-align: center; color: #bbb; margin-bottom: 20px; font-style: italic;"></p>
+
+            <div class="graph-container">
+                <canvas id="skillChart"></canvas>
+            </div>
+
+            <div class="flex-row" style="margin-top: 20px;">
+                <div class="info-group" style="flex: 1;"><h3>Cand 1 Missing</h3><div id="c-missing1"></div></div>
+                <div class="info-group" style="flex: 1;"><h3>Cand 2 Missing</h3><div id="c-missing2"></div></div>
+            </div>
+            <button class="action-btn" style="background: transparent; border: 1px solid #0A84FF;" onclick="resetUI()">Back to Inputs</button>
         </div>
-        
-        <button class="action-btn" style="margin-top: 20px; width: 100%;" onclick="resetApp()">Analyze Another</button>
+
     </div>
 
     <script>
-        // Global variable to store API data
-        let apiData = null;
+        let currentMode = 'single';
+        let chartInstance = null;
 
-        // Function to call your Docker Backend
-        async function analyzeResume() {
-            const jdText = document.getElementById('jd').value;
-            const resumeText = document.getElementById('resume').value;
+        // Tab Switching Logic
+        function switchTab(mode) {
+            currentMode = mode;
+            document.getElementById('tab-single').classList.toggle('active', mode === 'single');
+            document.getElementById('tab-compare').classList.toggle('active', mode === 'compare');
             
-            if(!jdText || !resumeText) {
-                alert("Please enter both Job Description and Resume!");
-                return;
-            }
+            document.getElementById('single-input').classList.toggle('hidden', mode === 'compare');
+            document.getElementById('compare-input').classList.toggle('hidden', mode === 'single');
+            
+            document.getElementById('run-btn').innerText = mode === 'single' ? 'Analyze Resume' : 'Compare Candidates';
+        }
+
+        // Main API Call function
+        async function runAnalysis() {
+            const jd = document.getElementById('jd').value;
+            if(!jd) return alert("Job Description is required!");
 
             document.getElementById('loading').style.display = 'block';
+            document.getElementById('run-btn').style.display = 'none';
 
             try {
-                // Pointing to your Docker Container's local address
-                const response = await fetch('http://localhost:8000/analyze_resume', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        job_description: jdText,
-                        resume_text: resumeText
-                    })
-                });
-
-                const result = await response.json();
-                
-                if(result.status === "success") {
-                    apiData = result.data;
-                    showBubble();
+                if(currentMode === 'single') {
+                    const resume = document.getElementById('resume-single').value;
+                    if(!resume) throw new Error("Resume is required!");
+                    
+                    const res = await fetch('http://localhost:8000/analyze_resume', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ job_description: jd, resume_text: resume })
+                    });
+                    const data = await res.json();
+                    if(data.status === 'success') showSingleResult(data.data);
+                    else alert(data.error);
                 } else {
-                    alert("API Error: " + result.error);
+                    const r1 = document.getElementById('resume-1').value;
+                    const r2 = document.getElementById('resume-2').value;
+                    if(!r1 || !r2) throw new Error("Both Resumes are required!");
+
+                    const res = await fetch('http://localhost:8000/compare_resumes', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ job_description: jd, resume_1: r1, resume_2: r2 })
+                    });
+                    const data = await res.json();
+                    if(data.status === 'success') showCompareResult(data.data);
+                    else alert(data.error);
                 }
-            } catch (error) {
-                alert("Failed to connect to backend. Make sure your Docker container is running on port 8000! Error: " + error.message);
+            } catch (err) {
+                alert(err.message);
             } finally {
                 document.getElementById('loading').style.display = 'none';
+                document.getElementById('run-btn').style.display = 'block';
             }
         }
 
-        // Switch to View 2 (The Bubble)
-        function showBubble() {
-            document.getElementById('input-view').style.display = 'none';
+        // Render Single Result
+        function showSingleResult(data) {
+            document.getElementById('input-section').style.display = 'none';
+            document.getElementById('tab-container').style.display = 'none';
+            document.getElementById('single-result').style.display = 'block';
+
+            document.getElementById('s-score').innerText = data.ats_score;
+            document.getElementById('s-prob').innerText = data.hiring_probability;
+            document.getElementById('s-prob').style.color = data.hiring_probability === 'High' ? '#32D74B' : (data.hiring_probability === 'Medium' ? '#FF9F0A' : '#FF453A');
+            document.getElementById('s-reason').innerText = data.reason;
+            document.getElementById('s-scope').innerText = data.future_scope;
             
-            const bubble = document.getElementById('bubble-view');
-            bubble.style.display = 'flex';
-            
-            // Set the score
-            document.getElementById('display-score').innerText = apiData.ats_score + '%';
+            document.getElementById('s-missing').innerHTML = data.missing_keywords.map(k => `<span class="tag">${k}</span>`).join('');
         }
 
-        // Switch to View 3 (Expanded Details)
-        function expandDetails() {
-            document.getElementById('bubble-view').style.display = 'none';
+        // Render Compare Result & Graph
+        function showCompareResult(data) {
+            document.getElementById('input-section').style.display = 'none';
+            document.getElementById('tab-container').style.display = 'none';
+            document.getElementById('compare-result').style.display = 'block';
+
+            document.getElementById('c-score1').innerText = data.candidate_1.ats_score + '%';
+            document.getElementById('c-score2').innerText = data.candidate_2.ats_score + '%';
+            document.getElementById('c-summary').innerText = data.comparison_summary;
             
-            const details = document.getElementById('details-view');
-            details.style.display = 'block';
+            document.getElementById('c-missing1').innerHTML = data.candidate_1.missing_keywords.map(k => `<span class="tag">${k}</span>`).join('') || '<span style="color:#aaa;font-size:12px;">None</span>';
+            document.getElementById('c-missing2').innerHTML = data.candidate_2.missing_keywords.map(k => `<span class="tag">${k}</span>`).join('') || '<span style="color:#aaa;font-size:12px;">None</span>';
 
-            // Populate Data
-            document.getElementById('detail-score').innerText = apiData.ats_score + '%';
-            document.getElementById('hiring-prob').innerText = apiData.hiring_probability;
-            
-            // Set color based on probability
-            const probEl = document.getElementById('hiring-prob');
-            if(apiData.hiring_probability === "High") probEl.style.color = "#32D74B";
-            else if(apiData.hiring_probability === "Medium") probEl.style.color = "#FF9F0A";
-            else probEl.style.color = "#FF453A";
+            renderGraph(data.common_skills_graph);
+        }
 
-            document.getElementById('hiring-reason').innerText = apiData.reason || "Based on current market analysis.";
-            document.getElementById('future-scope-text').innerText = apiData.future_scope;
-
-            // Render Missing Keywords Tags
-            const tagsContainer = document.getElementById('missing-tags');
-            tagsContainer.innerHTML = '';
-            apiData.missing_keywords.forEach(keyword => {
-                const span = document.createElement('span');
-                span.className = 'tag';
-                span.innerText = keyword;
-                tagsContainer.appendChild(span);
-            });
-
-            // Render Trending Tech Cards
-            const techContainer = document.getElementById('trending-tech-container');
-            techContainer.innerHTML = '';
-            apiData.trending_tech_to_learn.forEach(tech => {
-                const card = document.createElement('div');
-                card.className = 'tech-card';
-                card.innerHTML = `
-                    <h4>${tech.tech_name}</h4>
-                    <p>${tech.reason}</p>
-                    <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(tech.learning_link)}" target="_blank">
-                        ▶ ${tech.learning_link}
-                    </a>
-                `;
-                techContainer.appendChild(card);
+        // Render Chart.js Graph
+        function renderGraph(gData) {
+            if(chartInstance) chartInstance.destroy();
+            const ctx = document.getElementById('skillChart').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: gData.labels,
+                    datasets: [
+                        { label: 'Cand 1', data: gData.candidate_1_scores, backgroundColor: 'rgba(10,132,255,0.2)', borderColor: '#0A84FF', borderWidth: 2 },
+                        { label: 'Cand 2', data: gData.candidate_2_scores, backgroundColor: 'rgba(255,10,132,0.2)', borderColor: '#FF0A84', borderWidth: 2 }
+                    ]
+                },
+                options: { scales: { r: { angleLines: {color: 'rgba(255,255,255,0.1)'}, grid: {color: 'rgba(255,255,255,0.1)'}, pointLabels: {color: '#fff'}, ticks: {display: false, min: 0, max: 10} } }, plugins: { legend: {labels: {color: '#fff'}} } }
             });
         }
 
-        // Reset back to Form
-        function resetApp() {
-            document.getElementById('details-view').style.display = 'none';
-            document.getElementById('jd').value = '';
-            document.getElementById('resume').value = '';
-            document.getElementById('input-view').style.display = 'flex';
+        // Back Button Logic
+        function resetUI() {
+            document.getElementById('single-result').style.display = 'none';
+            document.getElementById('compare-result').style.display = 'none';
+            document.getElementById('input-section').style.display = 'block';
+            document.getElementById('tab-container').style.display = 'flex';
         }
     </script>
 </body>
